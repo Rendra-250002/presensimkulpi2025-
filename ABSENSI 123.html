@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Absensi Mahasiswa</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .date-info {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            display: inline-block;
+            font-weight: bold;
+        }
+
+        .controls {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .filter-section {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        select, input {
+            padding: 12px 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        select:focus, input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .attendance-grid {
+            display: grid;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .student-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .student-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .student-info {
+            flex: 1;
+        }
+
+        .student-name {
+            font-weight: bold;
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .student-class {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .attendance-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .attendance-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .attendance-btn.hadir {
+            background: #2ecc71;
+            color: white;
+        }
+
+        .attendance-btn.izin {
+            background: #f39c12;
+            color: white;
+        }
+
+        .attendance-btn.sakit {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .attendance-btn.active {
+            transform: scale(1.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .summary {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .summary-item {
+            text-align: center;
+            padding: 20px;
+            border-radius: 15px;
+            color: white;
+            font-weight: bold;
+        }
+
+        .summary-item.hadir { background: linear-gradient(45deg, #2ecc71, #27ae60); }
+        .summary-item.izin { background: linear-gradient(45deg, #f39c12, #e67e22); }
+        .summary-item.sakit { background: linear-gradient(45deg, #e74c3c, #c0392b); }
+        .summary-item.total { background: linear-gradient(45deg, #3498db, #2980b9); }
+
+        .summary-number {
+            font-size: 2em;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .export-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .export-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        @media (max-width: 768px) {
+            .filter-section {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .student-card {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            
+            .attendance-buttons {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📚 Sistem Absensi Mahasiswa</h1>
+            <div class="date-info" id="currentDate"></div>
+        </div>
+
+        <div class="controls">
+            <div class="filter-section">
+                <select id="classFilter">
+                    <option value="all">Semua Kelas</option>
+                    <option value="PKH A">Pendidikan Khusus A</option>
+                    <option value="PKH B">Pendidikan Khusus B</option>
+                    <option value="PKH C">Pendidikan Khusus C</option>
+                    <option value="MP C">Manajemen Pendidikan C</option>
+                </select>
+                
+                <input type="text" id="searchStudent" placeholder="Cari nama mahasiswa...">
+                
+                <button class="export-btn" onclick="exportAttendance()">📊 Export Data</button>
+            </div>
+        </div>
+
+        <div class="summary">
+            <h3 style="margin-bottom: 20px; text-align: center; color: #333;">📊 Ringkasan Kehadiran</h3>
+            <div class="summary-grid">
+                <div class="summary-item hadir">
+                    <span class="summary-number" id="hadirCount">0</span>
+                    <span>Hadir</span>
+                </div>
+                <div class="summary-item izin">
+                    <span class="summary-number" id="izinCount">0</span>
+                    <span>Izin</span>
+                </div>
+                <div class="summary-item sakit">
+                    <span class="summary-number" id="sakitCount">0</span>
+                    <span>Sakit</span>
+                </div>
+                <div class="summary-item total">
+                    <span class="summary-number" id="totalCount">50</span>
+                    <span>Total</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="attendance-grid" id="attendanceGrid">
+            <!-- Student cards will be generated here -->
+        </div>
+    </div>
+
+    <script>
+        // Data mahasiswa
+        const students = [
+            // Pendidikan Khusus A (17 mahasiswa)
+            { name: "Ahmad Rizki Pratama", class: "PKH A", status: null },
+            { name: "Siti Nurhaliza", class: "PKH A", status: null },
+            { name: "Muhammad Fadli", class: "PKH A", status: null },
+            { name: "Dewi Sartika", class: "PKH A", status: null },
+            { name: "Budi Santoso", class: "PKH A", status: null },
+            { name: "Rina Maharani", class: "PKH A", status: null },
+            { name: "Andi Wijaya", class: "PKH A", status: null },
+            { name: "Fitri Handayani", class: "PKH A", status: null },
+            { name: "Dedi Kurniawan", class: "PKH A", status: null },
+            { name: "Maya Sari", class: "PKH A", status: null },
+            { name: "Hendra Gunawan", class: "PKH A", status: null },
+            { name: "Lestari Wulandari", class: "PKH A", status: null },
+            { name: "Ridwan Kamil", class: "PKH A", status: null },
+            { name: "Indira Kirana", class: "PKH A", status: null },
+            { name: "Fajar Sidik", class: "PKH A", status: null },
+            { name: "Nurul Aini", class: "PKH A", status: null },
+            { name: "Yusuf Mansur", class: "PKH A", status: null },
+
+            // Pendidikan Khusus B (17 mahasiswa)
+            { name: "Ratna Dewi", class: "PKH B", status: null },
+            { name: "Agus Setiawan", class: "PKH B", status: null },
+            { name: "Putri Amelia", class: "PKH B", status: null },
+            { name: "Rahman Hakim", class: "PKH B", status: null },
+            { name: "Sari Indah", class: "PKH B", status: null },
+            { name: "Bambang Sutrisno", class: "PKH B", status: null },
+            { name: "Laila Majnun", class: "PKH B", status: null },
+            { name: "Joko Widodo", class: "PKH B", status: null },
+            { name: "Ayu Ting Ting", class: "PKH B", status: null },
+            { name: "Danang Pradana", class: "PKH B", status: null },
+            { name: "Sinta Nuriyah", class: "PKH B", status: null },
+            { name: "Rudi Hartono", class: "PKH B", status: null },
+            { name: "Mega Mustika", class: "PKH B", status: null },
+            { name: "Eko Patrio", class: "PKH B", status: null },
+            { name: "Dian Sastro", class: "PKH B", status: null },
+            { name: "Wahyu Hidayat", class: "PKH B", status: null },
+            { name: "Luna Maya", class: "PKH B", status: null },
+
+            // Pendidikan Khusus C (8 mahasiswa)
+            { name: "Bayu Skak", class: "PKH C", status: null },
+            { name: "Raisa Andriana", class: "PKH C", status: null },
+            { name: "Ariel Tatum", class: "PKH C", status: null },
+            { name: "Raffi Ahmad", class: "PKH C", status: null },
+            { name: "Syahrini", class: "PKH C", status: null },
+            { name: "Tulus", class: "PKH C", status: null },
+            { name: "Isyana Sarasvati", class: "PKH C", status: null },
+            { name: "Rizky Febian", class: "PKH C", status: null },
+
+            // Manajemen Pendidikan C (8 mahasiswa)
+            { name: "Afgan Syahreza", class: "MP C", status: null },
+            { name: "Maudy Ayunda", class: "MP C", status: null },
+            { name: "Vidi Aldiano", class: "MP C", status: null },
+            { name: "Chelsea Islan", class: "MP C", status: null },
+            { name: "Nicholas Saputra", class: "MP C", status: null },
+            { name: "Dian Pelangi", class: "MP C", status: null },
+            { name: "Ernest Prakasa", class: "MP C", status: null },
+            { name: "Raline Shah", class: "MP C", status: null }
+        ];
+
+        let filteredStudents = [...students];
+
+        // Set tanggal saat ini
+        function setCurrentDate() {
+            const now = new Date();
+            const options = { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            };
+            document.getElementById('currentDate').textContent = now.toLocaleDateString('id-ID', options);
+        }
+
+        // Render daftar mahasiswa
+        function renderStudents() {
+            const grid = document.getElementById('attendanceGrid');
+            grid.innerHTML = '';
+
+            filteredStudents.forEach((student, index) => {
+                const card = document.createElement('div');
+                card.className = 'student-card';
+                
+                card.innerHTML = `
+                    <div class="student-info">
+                        <div class="student-name">${student.name}</div>
+                        <div class="student-class">${student.class}</div>
+                    </div>
+                    <div class="attendance-buttons">
+                        <button class="attendance-btn hadir ${student.status === 'hadir' ? 'active' : ''}" 
+                                onclick="markAttendance(${students.indexOf(student)}, 'hadir')">
+                            ✓ Hadir
+                        </button>
+                        <button class="attendance-btn izin ${student.status === 'izin' ? 'active' : ''}" 
+                                onclick="markAttendance(${students.indexOf(student)}, 'izin')">
+                            ⓘ Izin
+                        </button>
+                        <button class="attendance-btn sakit ${student.status === 'sakit' ? 'active' : ''}" 
+                                onclick="markAttendance(${students.indexOf(student)}, 'sakit')">
+                            + Sakit
+                        </button>
+                    </div>
+                `;
+                
+                grid.appendChild(card);
+            });
+        }
+
+        // Tandai kehadiran
+        function markAttendance(studentIndex, status) {
+            students[studentIndex].status = status;
+            updateSummary();
+            renderStudents();
+        }
+
+        // Update ringkasan
+        function updateSummary() {
+            const hadir = students.filter(s => s.status === 'hadir').length;
+            const izin = students.filter(s => s.status === 'izin').length;
+            const sakit = students.filter(s => s.status === 'sakit').length;
+            
+            document.getElementById('hadirCount').textContent = hadir;
+            document.getElementById('izinCount').textContent = izin;
+            document.getElementById('sakitCount').textContent = sakit;
+        }
+
+        // Filter berdasarkan kelas
+        function filterByClass() {
+            const selectedClass = document.getElementById('classFilter').value;
+            const searchTerm = document.getElementById('searchStudent').value.toLowerCase();
+            
+            filteredStudents = students.filter(student => {
+                const matchClass = selectedClass === 'all' || student.class === selectedClass;
+                const matchSearch = student.name.toLowerCase().includes(searchTerm);
+                return matchClass && matchSearch;
+            });
+            
+            renderStudents();
+        }
+
+        // Export data absensi
+        function exportAttendance() {
+            const currentDate = new Date().toLocaleDateString('id-ID');
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += "Tanggal," + currentDate + "\n\n";
+            csvContent += "Nama,Kelas,Status\n";
+            
+            students.forEach(student => {
+                const status = student.status || 'Belum Absen';
+                csvContent += `${student.name},${student.class},${status}\n`;
+            });
+            
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `absensi_${currentDate.replace(/\//g, '-')}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Event listeners
+        document.getElementById('classFilter').addEventListener('change', filterByClass);
+        document.getElementById('searchStudent').addEventListener('input', filterByClass);
+
+        // Inisialisasi
+        setCurrentDate();
+        renderStudents();
+        updateSummary();
+    </script>
+</body>
+</html>
