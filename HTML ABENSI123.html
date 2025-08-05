@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Absensi Mahasiswa</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="loginScreen" class="login-container">
+        <div class="login-box">
+            <h1>🔐 Login Sistem Absensi</h1>
+            <p>Masukkan password untuk mengakses sistem</p>
+            <div class="login-form">
+                <input type="password" id="passwordInput" placeholder="Masukkan password">
+                <button onclick="login()" class="login-btn">Masuk</button>
+                <div id="loginError" class="error-message"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Application -->
+    <div id="mainApp" class="container" style="display: none;">
+        <div class="header">
+            <div class="header-content">
+                <h1>📚 Sistem Absensi Mahasiswa</h1>
+                <button onclick="logout()" class="logout-btn">Logout</button>
+            </div>
+            <div class="date-info" id="currentDate"></div>
+        </div>
+
+        <div class="controls">
+            <div class="filter-section">
+                <select id="classFilter">
+                    <option value="all">Semua Kelas</option>
+                    <option value="PKH A">Pendidikan Khusus A</option>
+                    <option value="PKH B">Pendidikan Khusus B</option>
+                    <option value="PKH C">Pendidikan Khusus C</option>
+                    <option value="MP C">Manajemen Pendidikan C</option>
+                </select>
+                
+                <input type="text" id="searchStudent" placeholder="Cari nama mahasiswa...">
+                
+                <button class="export-btn" onclick="exportAttendance()">📊 Export Data</button>
+            </div>
+        </div>
+
+        <div class="summary">
+            <h3>📊 Ringkasan Kehadiran</h3>
+            <div class="summary-grid">
+                <div class="summary-item hadir">
+                    <span class="summary-number" id="hadirCount">0</span>
+                    <span>Hadir</span>
+                </div>
+                <div class="summary-item izin">
+                    <span class="summary-number" id="izinCount">0</span>
+                    <span>Izin</span>
+                </div>
+                <div class="summary-item sakit">
+                    <span class="summary-number" id="sakitCount">0</span>
+                    <span>Sakit</span>
+                </div>
+                <div class="summary-item total">
+                    <span class="summary-number" id="totalCount">50</span>
+                    <span>Total</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="attendance-grid" id="attendanceGrid">
+            <!-- Student cards will be generated here -->
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
